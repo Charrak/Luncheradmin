@@ -21,3 +21,14 @@ Die beiden Debug-APKs liegen direkt im Ordner `apk/`:
 - `apk/Senioren-Launcher-debug.apk` – Senioren-Launcher (`com.seniorenlauncher`, Version 0.8.8)
 
 Sie sind mit dem automatisch erzeugten Debug-Schlüssel signiert und direkt auf dem Gerät installierbar (Unbekannte Quellen bzw. „Installation aus dieser Quelle zulassen“ erlauben). Für neue Builds: Actions → **Android APKs bauen** → **Run workflow**; die Ergebnisse stehen dort als Artefakte bereit.
+
+### APKs als GitHub Release veröffentlichen
+
+`.github/workflows/release.yml` baut bei einem Tag `v*` beide Apps und hängt die APKs als Release-Assets an:
+
+```
+git tag v1.0
+git push origin v1.0
+```
+
+Der Lauf erscheint unter Actions → **APKs veröffentlichen**, die Dateien anschließend unter Releases.
