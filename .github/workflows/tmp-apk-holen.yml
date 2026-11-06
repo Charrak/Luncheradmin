@@ -1,0 +1,36 @@
+name: APK abholen (temporär)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  holen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: arena/39efd54a-luncheradmin
+
+      - name: Artefakte des Build-Laufs herunterladen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p art
+          gh run download 42168081051 --repo "$GITHUB_REPOSITORY" --dir art
+          find art -name '*.apk' -print
+
+      - name: APKs in den Branch legen
+        run: |
+          mkdir -p apk
+          cp "$(find art -name '*.apk' | grep -i betreuer)" apk/Seniorenverwaltung-Betreuer-debug.apk
+          cp "$(find art -name '*.apk' | grep -i -v betreuer)" apk/Senioren-Launcher-debug.apk
+          ls -lh apk
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apk
+          git commit -m "APKs bereitstellen (temporär)"
+          git push origin HEAD:arena/39efd54a-luncheradmin
