@@ -1,0 +1,76 @@
+name: APKs veröffentlichen
+
+# Baut beide Apps und hängt die Debug-APKs als Release-Assets an.
+# Start: Tag v* pushen (z. B. `git tag v1.0 && git push origin v1.0`).
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  bauen:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Betreuer-App
+            directory: SeniorenBeheerder
+            artifact: betreuer
+            platform: platforms;android-36.1
+          - name: Senioren-Launcher
+            directory: SeniorenLauncher
+            artifact: launcher
+            platform: platforms;android-36
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: jetbrains
+          java-version: '21'
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager '${{ matrix.platform }}' 'build-tools;36.0.0' 'build-tools;36.1.0'
+      - uses: gradle/actions/setup-gradle@v6
+      - working-directory: ${{ matrix.directory }}
+        run: chmod +x gradlew
+      - working-directory: ${{ matrix.directory }}
+        run: >-
+          ./gradlew :app:assembleDebug
+          --no-daemon --max-workers=2
+          -Dorg.gradle.jvmargs="-Xmx3g -Dfile.encoding=UTF-8"
+          -Pkotlin.compiler.execution.strategy=in-process
+      - name: APK umbenennen
+        run: |
+          mkdir -p out
+          case "${{ matrix.artifact }}" in
+            betreuer) ziel=Seniorenverwaltung-Betreuer-debug.apk ;;
+            launcher) ziel=Senioren-Launcher-debug.apk ;;
+          esac
+          cp "${{ matrix.directory }}/app/build/outputs/apk/debug/app-debug.apk" "out/$ziel"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact }}
+          path: out/*.apk
+          if-no-files-found: error
+
+  veroeffentlichen:
+    needs: bauen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          path: apk
+          merge-multiple: true
+      - name: Release anlegen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls -lh apk
+          gh release create "${GITHUB_REF_NAME}" apk/*.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Seniorenverwaltung ${GITHUB_REF_NAME}" \
+            --notes "Debug-APKs aus Tag ${GITHUB_REF_NAME}: Betreuer-App (com.example.seniorenbeheerder) und Senioren-Launcher (com.seniorenlauncher), signiert mit dem automatischen Debug-Schlüssel."
