@@ -15,12 +15,12 @@ Dieser Workflow wurde vorbereitet, aber hier nicht auf GitHub ausgeführt. Falls
 
 ## Fertig gebaute APKs
 
-Die beiden Debug-APKs liegen direkt im Ordner `apk/`:
+Die aktuellen Debug-APKs hängen als Assets am Release [`v0.8.8-build`](https://github.com/Charrak/Luncheradmin/releases/tag/v0.8.8-build):
 
-- `apk/Seniorenverwaltung-Betreuer-debug.apk` – Betreuer-App (`com.example.seniorenbeheerder`, Version 1.0)
-- `apk/Senioren-Launcher-debug.apk` – Senioren-Launcher (`com.seniorenlauncher`, Version 0.8.8)
+- `Seniorenverwaltung-Betreuer-debug.apk` – Betreuer-App (`com.example.seniorenbeheerder`, Version 1.0, minSdk 23)
+- `Senioren-Launcher-debug.apk` – Senioren-Launcher (`com.seniorenlauncher`, Version 0.8.8, minSdk 26)
 
-Sie sind mit dem automatisch erzeugten Debug-Schlüssel signiert und direkt auf dem Gerät installierbar (Unbekannte Quellen bzw. „Installation aus dieser Quelle zulassen“ erlauben). Für neue Builds: Actions → **Android APKs bauen** → **Run workflow**; die Ergebnisse stehen dort als Artefakte bereit.
+Sie sind mit dem automatisch erzeugten Debug-Schlüssel signiert (APK Signature Scheme v2/v3) und direkt installierbar – dafür „Installation aus unbekannten Quellen“ bzw. „aus dieser Quelle zulassen“ erlauben. Für neue Builds: Actions → **Android APKs bauen** → **Run workflow**; die Ergebnisse stehen dort als Artefakte bereit.
 
 ### APKs als GitHub Release veröffentlichen
 
