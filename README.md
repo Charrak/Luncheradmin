@@ -12,3 +12,12 @@ Dieses Repository enthält beide Projekte: `SeniorenBeheerder` (Betreuer-App) un
 Es sind keine Secrets erforderlich. Die Debug-APKs werden mit dem automatisch erzeugten Debug-Schlüssel signiert. Sie eignen sich zum Testen, nicht als dauerhaft signierte Veröffentlichung. Eine bereits anders signierte Installation lässt sich damit normalerweise nicht aktualisieren. Bei jedem Workflow-Lauf kann ein anderer Debug-Schlüssel verwendet werden; eine Aktualisierung zwischen solchen Builds ist dann ebenfalls nicht möglich. Beim Deinstallieren können App-Daten verloren gehen. Für dauerhafte Updates ist ein eigener Release-Signaturprozess mit sicher verwahrtem Keystore notwendig.
 
 Dieser Workflow wurde vorbereitet, aber hier nicht auf GitHub ausgeführt. Falls ein Job fehlschlägt, öffne dessen Protokoll unter Actions. Tests und APKs ersetzen keine Überprüfung des SMS-Ablaufs auf beiden Geräten.
+
+## Fertig gebaute APKs
+
+Die beiden Debug-APKs liegen direkt im Ordner `apk/`:
+
+- `apk/Seniorenverwaltung-Betreuer-debug.apk` – Betreuer-App (`com.example.seniorenbeheerder`, Version 1.0)
+- `apk/Senioren-Launcher-debug.apk` – Senioren-Launcher (`com.seniorenlauncher`, Version 0.8.8)
+
+Sie sind mit dem automatisch erzeugten Debug-Schlüssel signiert und direkt auf dem Gerät installierbar (Unbekannte Quellen bzw. „Installation aus dieser Quelle zulassen“ erlauben). Für neue Builds: Actions → **Android APKs bauen** → **Run workflow**; die Ergebnisse stehen dort als Artefakte bereit.

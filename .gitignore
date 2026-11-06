@@ -5,3 +5,6 @@
 .idea/
 *.iml
 **/keystore/
+
+# Fertig gebaute APKs (siehe README)
+/apk/*.apk
