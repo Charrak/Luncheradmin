@@ -8,3 +8,6 @@
 
 # Fertig gebaute APKs (siehe README)
 /apk/*.apk
+
+# Test-APK aus dem Build (liegt im Release, nicht im Git)
+/out/
