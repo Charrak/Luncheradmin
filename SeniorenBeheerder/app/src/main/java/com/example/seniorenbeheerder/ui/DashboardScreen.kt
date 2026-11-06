@@ -1,5 +1,8 @@
 package com.example.seniorenbeheerder.ui
 
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,11 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.seniorenbeheerder.tr
+import com.example.seniorenbeheerder.MapLinks
 import com.example.seniorenbeheerder.SeniorenViewModel
 import com.example.seniorenbeheerder.data.SeniorState
 import com.example.seniorenbeheerder.ui.theme.SeniorenBeheerderTheme
@@ -50,9 +55,30 @@ fun DashboardContent(
     modifier: Modifier = Modifier
 ) {
     val locationMarkerTitle = tr("Locatie Senior", "Standort der betreuten Person")
+    val mapsOpenLabel = tr("Open in Maps", "In Maps öffnen")
+    val noMapsAppMessage = tr("Geen kaart-app gevonden", "Keine Karten-App gefunden")
+    val context = LocalContext.current
     var showPhoneDialog by remember { mutableStateOf(false) }
     var phoneNumberInput by remember { mutableStateOf(state.phoneNumber) }
     var popupMessage by remember { mutableStateOf("") }
+
+    // Standort in einer Karten-App öffnen: zuerst geo:-Schema an Google Maps,
+    // danach der per SMS empfangene Link, zuletzt der Google-Maps-Weblink.
+    val openInMaps: (Double, Double, String?) -> Unit = { lat, lon, receivedUrl ->
+        val candidates = listOfNotNull(
+            Intent(Intent.ACTION_VIEW, Uri.parse(MapLinks.geoUri(lat, lon)))
+                .setPackage("com.google.android.apps.maps"),
+            MapLinks.receivedUri(receivedUrl)?.let { Intent(Intent.ACTION_VIEW, Uri.parse(it)) },
+            Intent(Intent.ACTION_VIEW, Uri.parse(MapLinks.webUri(lat, lon)))
+        )
+
+        val opened = candidates.any { intent ->
+            runCatching { context.startActivity(intent) }.isSuccess
+        }
+        if (!opened) {
+            Toast.makeText(context, noMapsAppMessage, Toast.LENGTH_LONG).show()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -154,7 +180,9 @@ fun DashboardContent(
         SectionHeader(tr("Locatie & Veiligheid", "Standort & Sicherheit"))
         
         if (state.latitude != null && state.longitude != null) {
-            val geoPoint = GeoPoint(state.latitude, state.longitude)
+            val lat = state.latitude
+            val lon = state.longitude
+            val geoPoint = GeoPoint(lat, lon)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -205,6 +233,15 @@ fun DashboardContent(
                             Icon(Icons.Default.Close, contentDescription = tr("Sluiten", "Schließen"), modifier = Modifier.size(20.dp))
                         }
                     }
+
+                    ExtendedFloatingActionButton(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(12.dp),
+                        onClick = { openInMaps(lat, lon, state.lastLocationUrl) },
+                        icon = { Icon(Icons.Outlined.Map, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                        text = { Text(mapsOpenLabel) }
+                    )
                 }
             }
         } else {
