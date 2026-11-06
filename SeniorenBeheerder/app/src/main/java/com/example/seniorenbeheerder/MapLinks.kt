@@ -9,6 +9,12 @@ package com.example.seniorenbeheerder
  */
 object MapLinks {
 
+    /** Erkennt eine http(s)-URL auch innerhalb einer längeren SMS. */
+    private val URL_PATTERN = Regex("https?://\\S+")
+
+    /** Zeichen, die in SMS-Text häufig direkt an die URL anschließen. */
+    private const val TRAILING_PUNCTUATION = ".,;:!?)\"'»>"
+
     /** geo:-URI; das Schema ist der Standardweg zu installierten Karten-Apps. */
     fun geoUri(latitude: Double, longitude: Double): String =
         "geo:$latitude,$longitude?q=$latitude,$longitude"
@@ -18,13 +24,12 @@ object MapLinks {
         "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude"
 
     /**
-     * Liefert den empfangenen Link, wenn er als http(s)-URL brauchbar ist.
+     * Liefert den empfangenen Link, wenn die SMS eine http(s)-URL enthält.
      * Der Launcher schickt z. B. "📍 Locatie: https://www.google.com/maps/...".
      */
     fun receivedUri(received: String?): String? {
-        val trimmed = received?.trim().orEmpty()
-        if (!(trimmed.startsWith("http://") || trimmed.startsWith("https://"))) return null
-        if (trimmed.any { it.isWhitespace() }) return null
-        return trimmed
+        val text = received?.trim().orEmpty()
+        if (text.isEmpty()) return null
+        return URL_PATTERN.find(text)?.value?.trimEnd(*TRAILING_PUNCTUATION.toCharArray())
     }
 }

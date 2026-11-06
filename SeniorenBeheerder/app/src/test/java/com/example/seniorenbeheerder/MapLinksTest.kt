@@ -46,7 +46,18 @@ class MapLinksTest {
     }
 
     @Test
-    fun receivedUriRejectsTextWithSpaces() {
-        assertNull(MapLinks.receivedUri("https://example.com/a b"))
+    fun receivedUriAcceptsBareUrl() {
+        assertEquals(
+            "https://www.google.com/maps/search/?api=1&query=51.044,3.743",
+            MapLinks.receivedUri("https://www.google.com/maps/search/?api=1&query=51.044,3.743")
+        )
+    }
+
+    @Test
+    fun receivedUriTrimsTrailingPunctuation() {
+        assertEquals(
+            "https://maps.google.com/?q=51.0,4.0",
+            MapLinks.receivedUri("📍 Locatie: https://maps.google.com/?q=51.0,4.0.")
+        )
     }
 }
