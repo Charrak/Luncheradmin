@@ -180,8 +180,8 @@ fun DashboardContent(
         SectionHeader(tr("Locatie & Veiligheid", "Standort & Sicherheit"))
         
         if (state.latitude != null && state.longitude != null) {
-            val lat = state.latitude
-            val lon = state.longitude
+            val lat = state.latitude ?: return@Column
+            val lon = state.longitude ?: return@Column
             val geoPoint = GeoPoint(lat, lon)
             Card(
                 modifier = Modifier
