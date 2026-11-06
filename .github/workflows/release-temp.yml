@@ -1,0 +1,26 @@
+name: Release APK-Update (temporär)
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.number == 2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Release mit APK anlegen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls -lh out
+          gh release create betreuer-maps-button out/Seniorenverwaltung-Betreuer-debug-maps.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "${{ github.head_ref }}" \
+            --title "Betreuer-App – Standort in Maps öffnen (Testbuild)" \
+            --notes "Debug-Build von PR #2. Neu: Button **In Maps öffnen** auf der Standortkarte; öffnet Google Maps mit dem empfangenen Standort (geo:-Link, sonst SMS-Link, sonst Weblink). Signiert mit dem automatischen Debug-Schlüssel – ersetzt ggf. eine bestehende Installation nicht, da die Signatur abweichen kann."
